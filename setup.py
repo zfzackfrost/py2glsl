@@ -67,6 +67,8 @@ setup(
     packages=find_packages(where='src'),
     install_requires=[
         'aenum',
+        'numpy',
+        'PyOpenGL',
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
