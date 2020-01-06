@@ -9,7 +9,6 @@ import sys
 from py2glsl.gl_provider.pyqt5 import PyQt5OpenGLProvider
 
 from py2glsl.enum.glsl_type import GlslType
-from py2glsl.enum.gl_shader_type import GlShaderType
 from py2glsl.enum.glsl_varname import GlslVarName
 from py2glsl.enum.glsl_location import GlslLocation
 from py2glsl.enum.glsl_io_vartype import GlslIOVarType
@@ -17,9 +16,7 @@ from py2glsl.shader.base import FragmentShader, VertexShader
 from py2glsl.shader.statement.lib_base import ShaderStdLib
 from py2glsl.shader.statement.io_var import ShaderIOVar
 from py2glsl.shader.statement.uniform import ShaderUniform
-from py2glsl.shader.statement.action.solid_color import SolidColorAction
-
-import OpenGL.GL as GL
+from py2glsl.shader.statement.action.assign import AssignAction
 
 VPOS = ShaderIOVar(
     GlslVarName.VertPos,
@@ -28,12 +25,13 @@ VPOS = ShaderIOVar(
     GlslLocation.VertPos,
 )
 class TestVertex(VertexShader):
+    """Test vertex shader."""
     vpos = VPOS
-    assign_vpos = SolidColorAction(lambda: VPOS.name, GlslVarName.GlPosition)
+    assign_vpos = AssignAction(lambda: VPOS.name, GlslVarName.GlPosition)
 
 COLORTEMP = ShaderUniform('colorTemp', lambda: 300.0, GlslType.Vec4)
 class TestFragment(FragmentShader):
-    """Test shader."""
+    """Test fragment shader."""
 
     lib = ShaderStdLib(['temp2rgb'])
     fcolor = ShaderIOVar(
@@ -43,22 +41,22 @@ class TestFragment(FragmentShader):
         GlslLocation.FragColor,
     )
     color_temp = COLORTEMP
-    solidcolor = SolidColorAction(lambda: COLORTEMP.name, GlslVarName.FragColor)
+    solidcolor = AssignAction(lambda: COLORTEMP.name, GlslVarName.FragColor)
 
-def render(gl):
+def _render(gl):
     gl.glClearColor(1.0, 1.0, 0.0, 1.0)
 
-def init(gl):
+def _init(_):
     test_vert = TestVertex()
     test_vert.compile(TestVertex.shader_code)
     print(TestVertex.shader_code)
     print(test_vert.id)
 
-def main():
+def _main():
     prov = PyQt5OpenGLProvider()
-    prov.add_render_callback(render)
-    prov.add_init_callback(init)
+    prov.add_render_callback(_render)
+    prov.add_init_callback(_init)
     prov.main(sys.argv)
 
 if __name__ == "__main__":
-    main()
+    _main()

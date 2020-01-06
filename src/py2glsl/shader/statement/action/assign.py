@@ -1,4 +1,4 @@
-# Copyright 2019 Zachary Frost
+# Copyright 2020 Zachary Frost
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,15 +17,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Define SolidColorAction class."""
+"""Define AssignAction class."""
 
 from typing import Callable, Union
 
 from py2glsl.shader.statement.action.base import ShaderActionBase
 
 
-class SolidColorAction(ShaderActionBase):
-    """SolidColorAction"""
+class AssignAction(ShaderActionBase):
+    """AssignAction"""
     def __init__(self, source: Union[Callable[[], str], str], target):
         self.__source = source
         self.__target = target
