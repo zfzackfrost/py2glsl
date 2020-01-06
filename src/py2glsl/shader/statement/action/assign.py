@@ -19,28 +19,24 @@
 # SOFTWARE.
 """Define AssignAction class."""
 
-from typing import Callable, Union
-
 from py2glsl.shader.statement.action.base import ShaderActionBase
-
+from py2glsl.shader.statement.action.types import ActionVar
 
 class AssignAction(ShaderActionBase):
     """AssignAction"""
-    def __init__(self, source: Union[Callable[[], str], str], target):
+    def __init__(self, source: ActionVar, target: ActionVar):
         self.__source = source
         self.__target = target
 
     @property
     def source(self):
         """source"""
-        if callable(self.__source):
-            return self.__source()
-        return self.__source
+        return ShaderActionBase._eval_action_var(self.__source)
 
     @property
     def target(self):
         """target"""
-        return self.__target
+        return ShaderActionBase._eval_action_var(self.__target)
 
     def generate(self):
         return f'  {self.target} = {self.source};'
