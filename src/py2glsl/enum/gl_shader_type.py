@@ -1,4 +1,4 @@
-# Copyright 2019 Zachary Frost
+# Copyright 2020 Zachary Frost
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,13 +17,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Define GlslVarName enumeration."""
+"""Define GlShaderType enumeration."""
 
-from py2glsl.enum.base import StrEnum
 
-class GlslVarName(StrEnum):
-    """GlslVarName"""
-    FragColor = 'fColor'
-    VertPos = 'vPos'
-    VertTexCoords = 'vTexCoords'
-    GlPosition = 'gl_Position'
+from py2glsl.enum.base import IntEnum
+
+# pylint: disable=import-error
+from OpenGL.GL import GL_FRAGMENT_SHADER, GL_VERTEX_SHADER, GL_GEOMETRY_SHADER
+# pylint: enable=import-error
+
+class GlShaderType(IntEnum):
+    """GlShaderType"""
+    Fragment = GL_FRAGMENT_SHADER
+    Vertex = GL_VERTEX_SHADER
+    Geometry = GL_GEOMETRY_SHADER

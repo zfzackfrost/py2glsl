@@ -34,21 +34,34 @@ class GLWidget(QOpenGLWidget):
     # pylint: disable=invalid-name
     # pylint: disable=missing-function-docstring
     # pylint: disable=no-self-use
-    def __init__(self, on_update_getter, version_profile=None, parent=None):
+    def __init__(
+        self,
+        on_update_getter,
+        on_render_getter,
+        on_init_getter,
+        version_profile=None,
+        parent=None
+    ):
         super().__init__(parent)
         self.version_profile = version_profile
         self.on_update_getter = on_update_getter
+        self.on_render_getter = on_render_getter
+        self.on_init_getter = on_init_getter
         self.__last_time = time.monotonic()
 
     def initializeGL(self):
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+        self.on_init_getter()(GL)
 
     def paintGL(self):
         delta = time.monotonic() - self.__last_time
         on_update = self.on_update_getter()
         on_update(delta)
 
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
+        on_render = self.on_render_getter()
+        on_render(GL)
 
         self.update()
         self.__last_time = time.monotonic()
@@ -66,7 +79,7 @@ class PyQt5OpenGLProvider(OpenGLProviderBase):
 
     def main(self, argv):
         app = QApplication(argv)
-        w = GLWidget(lambda: self.on_update)
+        w = GLWidget(lambda: self.on_update, lambda: self.on_render, lambda: self.on_init)
         if self.__title is not None:
             w.setWindowTitle(self.__title)
         w.show()

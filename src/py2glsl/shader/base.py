@@ -23,11 +23,16 @@
 # pylint: disable=too-few-public-methods
 
 from py2glsl.util.sequence import flatten
+from py2glsl.enum.gl_shader_type import GlShaderType
 from py2glsl.shader.statement.base import ShaderStatementBase
 from py2glsl.shader.statement.lib_base import ShaderLibBase
 from py2glsl.shader.statement.uniform import ShaderUniform
 from py2glsl.shader.statement.io_var import ShaderIOVar
 from py2glsl.shader.statement.action.base import ShaderActionBase
+
+# pylint: disable=import-error
+import OpenGL.GL as GL
+# pylint: enable=import-error
 
 
 class ShaderMeta(type):
@@ -46,9 +51,7 @@ class ShaderMeta(type):
 
         for name, statement in attributedict.items():
             if isinstance(statement, ShaderStatementBase):
-                tmp_statement = cls.__process_shader_statement(
-                    cls, statement
-                )
+                tmp_statement = cls.__process_shader_statement(cls, statement)
                 setattr(cls, name, tmp_statement)
 
         cls.shader_code = cls.__generate_shader_code(cls, attributedict)
@@ -143,5 +146,36 @@ class ShaderMeta(type):
             f'}}'
         )
 
+
 class ShaderBase(metaclass=ShaderMeta):
     """Wrapper for ShaderMeta."""
+    def __init__(self, shader_type):
+        self.shader_type = shader_type
+        self.id = None
+
+    def compile(self, code: str):
+        shader_type = int(self.shader_type)
+        shader_id = GL.glCreateShader(shader_type)
+        GL.glShaderSource(shader_id, code)
+        GL.glCompileShader(shader_id)
+        status = GL.glGetShaderiv(shader_id, GL.GL_COMPILE_STATUS)
+
+        if not status:
+            info = GL.glGetShaderInfoLog(shader_id)
+            print('Error in shader...')
+            print(info.decode('utf-8'))
+        else:
+            self.id = shader_id
+
+
+class FragmentShader(ShaderBase):
+    def __init__(self):
+        super().__init__(GlShaderType.Fragment)
+
+class VertexShader(ShaderBase):
+    def __init__(self):
+        super().__init__(GlShaderType.Vertex)
+
+class GeometryShader(ShaderBase):
+    def __init__(self):
+        super().__init__(GlShaderType.Geometry)

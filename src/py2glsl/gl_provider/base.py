@@ -20,9 +20,11 @@
 """Define OpenGL provider base class."""
 
 from abc import ABC, abstractmethod
-from typing import List, Callable
+from typing import List, Callable, Any
 
 UpdateCallback = Callable[[float], None]
+RenderCallback = Callable[[Any], None]
+InitCallback = Callable[[Any], None]
 """An update callback for the OpenGL provider."""
 
 
@@ -33,6 +35,8 @@ class OpenGLProviderBase(ABC):
     """
     def __init__(self):
         self.__update_callbacks: List[UpdateCallback] = []
+        self.__render_callbacks: List[RenderCallback] = []
+        self.__init_callbacks: List[InitCallback] = []
 
     @abstractmethod
     def main(self, argv):
@@ -47,6 +51,15 @@ class OpenGLProviderBase(ABC):
         """
 
     @property
+    def on_render(self):
+        """All registered render callbacks chained together."""
+        def inner_on_render(gl):
+            for cb in self.__render_callbacks:
+                cb(gl)
+
+        return inner_on_render
+
+    @property
     def on_update(self):
         """All registered update callbacks chained together."""
         def inner_on_update(delta):
@@ -54,6 +67,16 @@ class OpenGLProviderBase(ABC):
                 cb(delta)
 
         return inner_on_update
+
+    @property
+    def on_init(self):
+        """All registered init callbacks chained together."""
+        def inner_on_init(gl):
+            for cb in self.__init_callbacks:
+                cb(gl)
+
+        return inner_on_init
+
 
     def add_update_callback(self, cb: UpdateCallback):
         """Register an update callback.
@@ -65,4 +88,28 @@ class OpenGLProviderBase(ABC):
         self.__update_callbacks = [
             x for i, x in enumerate(self.__update_callbacks)
             if i == self.__update_callbacks.index(x)
+        ]
+
+    def add_render_callback(self, cb: RenderCallback):
+        """Register a render callback.
+
+        Args:
+            cb (RenderCallback): The callback to register.
+        """
+        self.__render_callbacks.append(cb)
+        self.__render_callbacks = [
+            x for i, x in enumerate(self.__render_callbacks)
+            if i == self.__render_callbacks.index(x)
+        ]
+
+    def add_init_callback(self, cb: InitCallback):
+        """Register an init callback.
+
+        Args:
+            cb (InitCallback): The callback to register.
+        """
+        self.__init_callbacks.append(cb)
+        self.__init_callbacks = [
+            x for i, x in enumerate(self.__init_callbacks)
+            if i == self.__init_callbacks.index(x)
         ]
