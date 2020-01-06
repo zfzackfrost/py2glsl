@@ -19,6 +19,8 @@
 # SOFTWARE.
 """Define the shader_base() function"""
 
+from typing import Optional
+
 # pylint: disable=bad-continuation
 # pylint: disable=too-few-public-methods
 
@@ -149,11 +151,13 @@ class ShaderMeta(type):
 
 class ShaderBase(metaclass=ShaderMeta):
     """Wrapper for ShaderMeta."""
-    def __init__(self, shader_type):
+    def __init__(self, shader_type: int = 0):
         self.shader_type = shader_type
-        self.id = None
+        self.id: Optional[int] = None
 
-    def compile(self, code: str):
+    def compile(self, code: str) -> bool:
+        if self.shader_type <= 0:
+            return False
         shader_type = int(self.shader_type)
         shader_id = GL.glCreateShader(shader_type)
         GL.glShaderSource(shader_id, code)
@@ -162,10 +166,17 @@ class ShaderBase(metaclass=ShaderMeta):
 
         if not status:
             info = GL.glGetShaderInfoLog(shader_id)
-            print('Error in shader...')
-            print(info.decode('utf-8'))
-        else:
-            self.id = shader_id
+            print('Failed to compile `{0}` shader:'.format(GlShaderType(shader_type).name))
+            # Indent info log
+            info_lines = str(info.decode('utf-8')).split('\n')
+            print('\n'.join(map(lambda s: '  ' + s, info_lines)))
+            print('=' * 30)
+            code_lines = code.split('\n')
+            print('\n'.join(map(lambda s: '  ' + s, code_lines)))
+            # Return False on failure
+            return False
+        self.id = shader_id
+        return True
 
 
 class FragmentShader(ShaderBase):

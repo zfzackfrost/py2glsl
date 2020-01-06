@@ -17,6 +17,7 @@ from py2glsl.shader.statement.io_var import ShaderIOVar
 from py2glsl.shader.statement.uniform import ShaderUniform
 from py2glsl.shader.statement.action.assign import AssignAction
 from py2glsl.shader.statement.operator.multiply import MultiplyOperator
+from py2glsl.shader.program import ShaderProgram
 
 VPOS = ShaderIOVar(
     GlslVarName.VertPos,
@@ -36,21 +37,19 @@ class TestVertex(VertexShader):
     )
 
 
-COLORTEMP = ShaderUniform('colorTemp', lambda: 300.0, GlslType.Vec4)
-
-
+COLOR = ShaderUniform('color', lambda: 300.0, GlslType.Vec4)
 class TestFragment(FragmentShader):
     """Test fragment shader."""
 
-    lib = ShaderStdLib(['temp2rgb'])
+    # lib = ShaderStdLib(['temp2rgb'])
     fcolor = ShaderIOVar(
         GlslVarName.FragColor,
         GlslIOVarType.Out,
         GlslType.Vec4,
         GlslLocation.FragColor,
     )
-    color_temp = COLORTEMP
-    solidcolor = AssignAction(lambda: COLORTEMP.name, GlslVarName.FragColor)
+    color = COLOR
+    solidcolor = AssignAction(COLOR.name, GlslVarName.FragColor)
 
 
 def _render(gl):
@@ -58,10 +57,9 @@ def _render(gl):
 
 
 def _init(_):
-    test_vert = TestVertex()
-    test_vert.compile(TestVertex.shader_code)
-    print(TestVertex.shader_code)
-    print(test_vert.id)
+    test_prog = ShaderProgram(TestVertex, TestFragment)
+    test_prog.compile()
+    print(test_prog.id)
 
 
 def _main():
