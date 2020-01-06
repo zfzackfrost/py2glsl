@@ -25,7 +25,7 @@ from py2glsl.shader.statement.operator.types import OperatorArg, OperatorArgData
 
 class MultiplyOperator(ShaderOperatorBase):
     """Shader operator for multiplication."""
-    def __init__(self, *args: List[OperatorArg]):
+    def __init__(self, *args: OperatorArg):
         self.__args: List[OperatorArgData] = []
         for a in args:
             if isinstance(a, OperatorArgData):
