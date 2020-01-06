@@ -21,4 +21,6 @@
 
 from typing import Callable, Union
 
-ActionVar = Union[Callable[[], str], str]
+from py2glsl.shader.statement.operator.base import ShaderOperatorBase
+
+ActionVar = Union[Callable[[], str], str, ShaderOperatorBase]

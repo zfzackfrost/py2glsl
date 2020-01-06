@@ -1,4 +1,4 @@
-# Copyright 2019 Zachary Frost
+# Copyright 2020 Zachary Frost
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,23 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Define ShaderActionBase class."""
+"""Define MultiplyOperator class."""
 
-# pylint: disable=too-few-public-methods
+from typing import List
+from py2glsl.shader.statement.operator.base import ShaderOperatorBase
+from py2glsl.shader.statement.operator.types import OperatorArg, OperatorArgData
 
-from abc import abstractmethod
+class MultiplyOperator(ShaderOperatorBase):
+    """Shader operator for multiplication."""
+    def __init__(self, *args: List[OperatorArg]):
+        self.__args: List[OperatorArgData] = []
+        for a in args:
+            if isinstance(a, OperatorArgData):
+                self.__args.append(a)
+            else:
+                tmp_a = OperatorArgData(a, None, None)
+                self.__args.append(tmp_a)
 
-from py2glsl.shader.statement.base import ShaderStatementBase
-from py2glsl.shader.statement.action.types import ActionVar, ShaderOperatorBase
-
-class ShaderActionBase(ShaderStatementBase):
-    """ShaderAction"""
-
-    @abstractmethod
     def generate(self):
-        return ''
-
-    @staticmethod
-    def _eval_action_var(action_var: ActionVar) -> str:
-        if callable(action_var):
-            return action_var()
-        if isinstance(action_var, ShaderOperatorBase):
-            return action_var.generate()
-        return action_var
+        arg_strs = [ShaderOperatorBase._eval_operator_var_name(a.var) for a in self.__args]
+        return ' * '.join(arg_strs)

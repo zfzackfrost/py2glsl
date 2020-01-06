@@ -1,4 +1,4 @@
-# Copyright 2019 Zachary Frost
+# Copyright 2020 Zachary Frost
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,4 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Define ShaderActionBase class."""
-
-# pylint: disable=too-few-public-methods
-
-from abc import abstractmethod
-
-from py2glsl.shader.statement.base import ShaderStatementBase
-from py2glsl.shader.statement.action.types import ActionVar, ShaderOperatorBase
-
-class ShaderActionBase(ShaderStatementBase):
-    """ShaderAction"""
-
-    @abstractmethod
-    def generate(self):
-        return ''
-
-    @staticmethod
-    def _eval_action_var(action_var: ActionVar) -> str:
-        if callable(action_var):
-            return action_var()
-        if isinstance(action_var, ShaderOperatorBase):
-            return action_var.generate()
-        return action_var
+"""py2glsl.shader.statement.operator package."""
